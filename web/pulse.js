@@ -29,7 +29,8 @@
 <div class="pulse-card__eyebrow">❤️ Your Pulse</div>
 <h2>Welcome back.</h2>
 <p>Pulse is learning how you enjoy DJs Mobiles. This is just the beginning.</p>
-
+// Future:
+// Render contextual action button when Pulse has a meaningful next step.
       `;
 
       container.appendChild(card);
