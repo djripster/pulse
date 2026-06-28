@@ -18,6 +18,11 @@
     },
 
     renderDemoCard() {
+      const container = document.getElementById('pulse-container');
+      if (!container) return;
+
+      if (container.querySelector('.pulse-card')) return;
+
       const card = document.createElement('section');
       card.className = 'pulse-card';
       card.innerHTML = `
@@ -27,9 +32,7 @@
         <button type="button" class="pulse-card__button">Continue</button>
       `;
 
-  const container = document.getElementById('pulse-container');
-  if (!container) return;
-  container.appendChild(card);
+      container.appendChild(card);
     }
   };
 
