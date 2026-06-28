@@ -12,12 +12,13 @@
 
     var overlay = document.createElement('div');
     overlay.className = 'pulse-overlay';
+
     overlay.innerHTML =
       '<div class="pulse-card">' +
         '<div class="pulse-kicker">❤️ Your Pulse</div>' +
-        '<h1>' + (isFirstLaunch ? 'Welcome to Pulse' : 'Welcome back') + '</h1>' +
+        '<h2>' + (isFirstLaunch ? 'Welcome to Pulse' : 'Welcome back') + '</h2>' +
         '<p>' + (isFirstLaunch
-          ? 'Pulse helps DJs Mobiles feel a little more personal.'
+          ? 'Pulse helps DJs Mobiles remember your experience on this device.'
           : 'We missed you. Your latest stories are waiting.') + '</p>' +
         '<button class="pulse-button" type="button">' +
           (isFirstLaunch ? 'Begin' : 'Continue') +
@@ -33,7 +34,9 @@
   }
 
   function initPulseExtension() {
-    if (!global.Pulse) return;
+    if (!global.Pulse) {
+      return;
+    }
 
     global.Pulse.init();
 
@@ -42,9 +45,12 @@
       return;
     }
 
-    var state = global.Pulse.getReaderState();
-    document.body.appendChild(createOverlay(state));
+    document.body.appendChild(createOverlay(global.Pulse.getReaderState()));
   }
 
-  document.addEventListener('DOMContentLoaded', initPulseExtension);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPulseExtension);
+  } else {
+    initPulseExtension();
+  }
 })(window, document);
