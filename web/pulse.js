@@ -25,14 +25,11 @@
 
       const card = document.createElement('section');
       card.className = 'pulse-card';
-      card.innerHTML = `
-<div class="pulse-card__eyebrow">❤️ Your Pulse</div>
-<h2>Welcome back.</h2>
-<p>Pulse is learning how you enjoy DJs Mobiles. This is just the beginning.</p>
-/* Future:
- Render contextual action button when Pulse has a meaningful next step.
-*/
-      `;
+card.innerHTML = `
+  <div class="pulse-card__eyebrow">❤️ Your Pulse</div>
+  <h2>Welcome.</h2>
+  <p>Explore DJs Mobiles your way.</p>
+`;
 
       container.appendChild(card);
     }
