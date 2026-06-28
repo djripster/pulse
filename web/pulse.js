@@ -7,22 +7,34 @@
  */
 
 (function (window, document) {
-    'use strict';
+  'use strict';
 
-    const Pulse = {
+  const Pulse = {
+    version: '0.1',
 
-        version: '0.1',
+    init() {
+      console.log('❤️ Pulse v' + this.version + ' loaded');
+      this.renderDemoCard();
+    },
 
-        init() {
-            console.log('❤️ Pulse v' + this.version + ' loaded');
-        }
+    renderDemoCard() {
+      const card = document.createElement('section');
+      card.className = 'pulse-card';
+      card.innerHTML = `
+        <div class="pulse-card__eyebrow">❤️ Your Pulse</div>
+        <h2>Welcome back.</h2>
+        <p>Website Pulse is now loading from GitHub.</p>
+        <button type="button" class="pulse-card__button">Continue</button>
+      `;
 
-    };
+      document.body.appendChild(card);
+    }
+  };
 
-    window.Pulse = Pulse;
+  window.Pulse = Pulse;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        Pulse.init();
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    Pulse.init();
+  });
 
 })(window, document);
