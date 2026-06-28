@@ -1,44 +1,58 @@
 /*
  * Pulse
- * ------------------------------------
  * Module: pulse-core.js
- *
- * Shared Pulse behaviour.
  * Prototype: v0.1
- *
- * UI belongs to the platform.
- * Behaviour belongs to Core.
  */
 
 (function (global) {
   'use strict';
 
+  function getStorage() {
+    if (!global.PulseStorage) {
+      throw new Error('PulseStorage is required before Pulse.');
+    }
+
+    return global.PulseStorage;
+  }
+
   var Pulse = {
     init: function () {
-      // TODO: connect to PulseStorage
+      return getStorage().read();
     },
 
     isFirstLaunch: function () {
-      // TODO
-      return false;
+      var state = getStorage().read();
+      return !state.lastVisit;
     },
 
     shouldShowWelcome: function () {
-      // TODO
-      return false;
+      var state = getStorage().read();
+      return !state.welcomeDismissed;
     },
 
     markVisit: function () {
-      // TODO
+      return getStorage().update({
+        lastVisit: getStorage().now()
+      });
     },
 
     dismissWelcome: function () {
-      // TODO
+      return getStorage().update({
+        welcomeDismissed: true,
+        lastVisit: getStorage().now()
+      });
     },
 
     getReaderState: function () {
-      // TODO
-      return {};
+      var state = getStorage().read();
+
+      return {
+        version: state.version,
+        installedAt: state.installedAt,
+        lastVisit: state.lastVisit,
+        welcomeDismissed: state.welcomeDismissed,
+        isFirstLaunch: !state.lastVisit
+      };
     }
   };
 
