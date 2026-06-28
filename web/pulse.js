@@ -29,7 +29,7 @@
 <div class="pulse-card__eyebrow">❤️ Your Pulse</div>
 <h2>Welcome back.</h2>
 <p>Pulse is learning how you enjoy DJs Mobiles. This is just the beginning.</p>
-<button type="button" class="pulse-card__button">Continue</button>
+
       `;
 
       container.appendChild(card);
