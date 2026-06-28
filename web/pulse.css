@@ -1,3 +1,38 @@
+.pulse-card__header {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #0f4c81;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pulse-card__body {
+    margin-top: 12px;
+}
+
+.pulse-card--collapsed {
+    padding: 16px 18px;
+}
+
+.pulse-card--collapsed .pulse-card__header {
+    margin: 0;
+}
+
+.pulse-card__chevron {
+    font-size: 14px;
+    line-height: 1;
+}
+
 .pulse-card {
     background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
     border: 1px solid rgba(215,227,239,.9);
