@@ -4,23 +4,43 @@
  * Module: pulse-core.js
  *
  * Shared Pulse behaviour.
- *
  * Prototype: v0.1
- *
- * This module contains the public API used
- * by Pulse implementations.
  *
  * UI belongs to the platform.
  * Behaviour belongs to Core.
  */
-Pulse.init()
 
-Pulse.isFirstLaunch()
+(function (global) {
+  'use strict';
 
-Pulse.shouldShowWelcome()
+  var Pulse = {
+    init: function () {
+      // TODO: connect to PulseStorage
+    },
 
-Pulse.markVisit()
+    isFirstLaunch: function () {
+      // TODO
+      return false;
+    },
 
-Pulse.dismissWelcome()
+    shouldShowWelcome: function () {
+      // TODO
+      return false;
+    },
 
-Pulse.getReaderState()
+    markVisit: function () {
+      // TODO
+    },
+
+    dismissWelcome: function () {
+      // TODO
+    },
+
+    getReaderState: function () {
+      // TODO
+      return {};
+    }
+  };
+
+  global.Pulse = Pulse;
+})(window);
