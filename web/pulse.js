@@ -27,7 +27,9 @@
         <button type="button" class="pulse-card__button">Continue</button>
       `;
 
-      document.body.appendChild(card);
+  const container = document.getElementById('pulse-container');
+  if (!container) return;
+  container.appendChild(card);
     }
   };
 
