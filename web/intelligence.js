@@ -14,7 +14,6 @@
 const Intelligence = {
 version: '0.1',
 
-```
 normalize(value) {
   return String(value || '')
     .toLowerCase()
@@ -116,7 +115,6 @@ analyzeArticle(article) {
     topics: this.detectTopics(title, labels)
   };
 }
-```
 
 };
 
