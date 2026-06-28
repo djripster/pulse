@@ -9,12 +9,21 @@
 (function (window, document) {
   'use strict';
 
+  const STORAGE_KEY = 'djs_pulse_website_expanded';
+
   const Pulse = {
     version: '0.1',
     isExpanded: true,
 
     init() {
       console.log('❤️ Pulse v' + this.version + ' loaded');
+
+      const savedState = localStorage.getItem(STORAGE_KEY);
+
+      if (savedState === 'false') {
+        this.isExpanded = false;
+      }
+
       this.render();
     },
 
@@ -49,6 +58,12 @@
 
       card.querySelector('.pulse-card__header').addEventListener('click', () => {
         this.isExpanded = !this.isExpanded;
+
+        localStorage.setItem(
+          STORAGE_KEY,
+          this.isExpanded ? 'true' : 'false'
+        );
+
         this.render();
       });
 
