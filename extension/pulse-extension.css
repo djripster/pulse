@@ -49,3 +49,125 @@
 .pulse-button:hover {
     background: #3b6ef0;
 }
+
+/* Pulse host controls | v0.2.1 */
+.pulse-host-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pulse-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(215, 227, 239, 0.92);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #5b6b7b;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(15, 76, 129, 0.08);
+}
+
+.pulse-reset-btn:hover {
+  color: #0f4c81;
+  border-color: rgba(15, 76, 129, 0.24);
+}
+
+.pulse-root {
+  display: none;
+}
+
+.pulse-root.is-open {
+  display: block;
+}
+
+.pulse-root-card {
+  margin: 12px 14px 14px;
+  padding: 15px 16px;
+  border: 1px solid rgba(215, 227, 239, 0.95);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+  box-shadow: 0 8px 24px rgba(15, 76, 129, 0.10);
+}
+
+.pulse-root-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pulse-root-kicker {
+  color: #0f4c81;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.pulse-root-card h2 {
+  margin: 0;
+  color: #17212b;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-size: 22px;
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.pulse-root-card p {
+  margin: 8px 0 0;
+  color: #5b6b7b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.pulse-root-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(215, 227, 239, 0.92);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5b6b7b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pulse-root-close:hover {
+  color: #0f4c81;
+  border-color: rgba(15, 76, 129, 0.24);
+}
+
+.theme-toggle-control:checked ~ .app-shell .pulse-reset-btn,
+.theme-toggle-control:checked ~ .app-shell .pulse-root-close {
+  background: rgba(16, 31, 50, 0.92);
+  border-color: rgba(102, 183, 255, 0.22);
+  color: #b8c6d4;
+}
+
+.theme-toggle-control:checked ~ .app-shell .pulse-root-card {
+  background: linear-gradient(180deg, #101f32 0%, #0b1726 100%);
+  border-color: rgba(102, 183, 255, 0.18);
+}
+
+.theme-toggle-control:checked ~ .app-shell .pulse-root-card h2 {
+  color: #eef6ff;
+}
+
+.theme-toggle-control:checked ~ .app-shell .pulse-root-card p {
+  color: #b8c6d4;
+}
+
+.theme-toggle-control:checked ~ .app-shell .pulse-root-kicker {
+  color: #b9dcff;
+}
