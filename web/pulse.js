@@ -9,13 +9,15 @@
 (function (window, document) {
   'use strict';
 
-  const Pulse = {
-    version: '0.2',
-    reader: null,
-    article: null,
-    conversation: null,
-    isExpanded: true,
-    iconPath: 'https://djripster.github.io/pulse/web/pulse.svg',
+const PULSE_ASSET_PATH = 'https://djripster.github.io/pulse/web/';
+
+const Pulse = {
+  version: '0.2',
+  reader: null,
+  article: null,
+  conversation: null,
+  isExpanded: true,
+  iconPath: `${PULSE_ASSET_PATH}pulse.svg`,
 
     init() {
       console.log('Pulse v' + this.version + ' loaded');
