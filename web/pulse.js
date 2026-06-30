@@ -12,12 +12,13 @@
   const PULSE_ASSET_PATH = 'https://djripster.github.io/pulse/web/';
 
   const PulseConfig = {
+    publicVisible: false,
     publicAutoOpen: false,
     publicCanExpand: false
   };
 
   const Pulse = {
-    version: '0.2.1',
+    version: '0.2.2',
     reader: null,
     article: null,
     conversation: null,
@@ -29,6 +30,24 @@
       return this.isDeveloper || PulseConfig.publicCanExpand === true;
     },
 
+    hideForPublicVisitors() {
+      const container = this.showContainer();
+      if (!container) return;
+
+      container.innerHTML = '';
+      container.setAttribute('hidden', 'hidden');
+      container.setAttribute('aria-hidden', 'true');
+    },
+
+    showContainer() {
+      const container = document.getElementById('pulse-container');
+      if (!container) return null;
+
+      container.removeAttribute('hidden');
+      container.removeAttribute('aria-hidden');
+      return container;
+    },
+
     init() {
       console.log('Pulse v' + this.version + ' loaded');
 
@@ -36,6 +55,12 @@
       const intelligence = window.DjsIntelligence;
 
       this.isDeveloper = state ? state.isDeveloper() : false;
+
+      if (!this.isDeveloper && PulseConfig.publicVisible !== true) {
+        this.hideForPublicVisitors();
+        return;
+      }
+
       this.reader = state ? state.load() : { isExpanded: false, followingSince: 'Today', isFirstVisit: true };
       this.article = intelligence ? intelligence.analyzeArticle() : null;
       this.conversation = intelligence
@@ -128,7 +153,7 @@
     },
 
     render() {
-      const container = document.getElementById('pulse-container');
+      const container = this.showContainer();
       if (!container) return;
 
       container.innerHTML = '';
