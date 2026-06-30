@@ -31,15 +31,43 @@
     padding: 0;
   }
 
+@media (max-width: 768px) {
+  #pulse-container {
+    display: none !important;
+  }
+
+  #pulse-mobile-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  #pulse-mobile-card {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  #pulse-mobile-card:empty {
+    display: none;
+  }
+
+  .pulse-mobile-trigger {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid var(--border, #d7e3ef);
+    background: #fff;
+    box-shadow: 0 6px 14px rgba(15,35,58,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
   .pulse-mobile-trigger .pulse-icon {
     width: 22px;
     height: 22px;
-  }
-}
-
-@media (min-width: 769px) {
-  #pulse-mobile-button,
-  #pulse-mobile-card {
-    display: none !important;
   }
 }
