@@ -141,3 +141,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+.pulse-card--locked .pulse-card__header {
+  cursor: default;
+}
+
+.pulse-card__status {
+  flex: 0 0 auto;
+  color: #6f7d8c;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

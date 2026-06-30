@@ -12,17 +12,22 @@
   const PULSE_ASSET_PATH = 'https://djripster.github.io/pulse/web/';
 
   const PulseConfig = {
-    publicAutoOpen: false
+    publicAutoOpen: false,
+    publicCanExpand: false
   };
 
   const Pulse = {
-    version: '0.2',
+    version: '0.2.1',
     reader: null,
     article: null,
     conversation: null,
     isExpanded: true,
     iconPath: PULSE_ASSET_PATH + 'pulse.svg',
     isDeveloper: false,
+
+    canExpand() {
+      return this.isDeveloper || PulseConfig.publicCanExpand === true;
+    },
 
     init() {
       console.log('Pulse v' + this.version + ' loaded');
@@ -43,7 +48,7 @@
 
       this.isExpanded = shouldAutoOpen
         ? true
-        : (this.isDeveloper || PulseConfig.publicAutoOpen ? this.reader.isExpanded : false);
+        : (this.canExpand() ? this.reader.isExpanded : false);
 
       if (shouldAutoOpen && state) {
         state.markAutoOpened();
@@ -110,10 +115,14 @@
     },
 
     collapsedMarkup() {
+      const affordance = this.canExpand()
+        ? '<span class="pulse-card__chevron" aria-hidden="true">⌄</span>'
+        : '<span class="pulse-card__status" aria-hidden="true">Soon</span>';
+
       return `
         <button type="button" class="pulse-card__header" aria-expanded="false">
           ${this.titleMarkup()}
-          <span class="pulse-card__chevron" aria-hidden="true">⌄</span>
+          ${affordance}
         </button>
       `;
     },
@@ -128,13 +137,18 @@
       const mode = this.conversation && this.conversation.mode ? this.conversation.mode : 'default';
       card.className = this.isExpanded
         ? 'pulse-card pulse-card--expanded pulse-card--' + mode
-        : 'pulse-card pulse-card--collapsed';
+        : 'pulse-card pulse-card--collapsed' + (this.canExpand() ? '' : ' pulse-card--locked');
 
       card.innerHTML = this.isExpanded ? this.expandedMarkup() : this.collapsedMarkup();
 
       const header = card.querySelector('.pulse-card__header');
       if (header) {
         header.addEventListener('click', () => {
+          if (!this.canExpand()) {
+            console.log('Pulse is visible, but the full website experience is developer-only for now.');
+            return;
+          }
+
           this.isExpanded = !this.isExpanded;
 
           if (window.DjsPulseState) {
