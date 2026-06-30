@@ -154,3 +154,41 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+/* ============================================================
+   Pulse Responsive Mounts
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* Hide desktop Pulse */
+  #pulse-container {
+    display: none !important;
+  }
+
+  /* Mobile button beside search */
+  #pulse-mobile-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Card above featured story */
+  #pulse-mobile-card {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  #pulse-mobile-card:empty {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+
+  /* Hide mobile Pulse on desktop */
+  #pulse-mobile-button,
+  #pulse-mobile-card {
+    display: none !important;
+  }
+}
