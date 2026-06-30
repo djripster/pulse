@@ -247,4 +247,16 @@
   document.addEventListener('DOMContentLoaded', () => {
     Pulse.init();
   });
+
+  let pulseResizeTimer = null;
+
+window.addEventListener('resize', () => {
+  clearTimeout(pulseResizeTimer);
+  pulseResizeTimer = setTimeout(() => {
+    if (window.Pulse) {
+      window.Pulse.render();
+    }
+  }, 150);
+});
+  
 })(window, document);
