@@ -17,7 +17,8 @@
     lastSeen: STORAGE_PREFIX + 'last_seen',
     lastVisit: STORAGE_PREFIX + 'last_visit',
     lastAutoOpen: STORAGE_PREFIX + 'last_auto_open',
-    expanded: STORAGE_PREFIX + 'expanded'
+    expanded: STORAGE_PREFIX + 'expanded',
+    developer: 'djs_pulse_dev'
   };
 
   function nowIso() {
@@ -94,8 +95,21 @@
       safeSet(KEYS.lastAutoOpen, todayKey(date || Date.now()));
     },
 
-    shouldAutoOpen(reader) {
+    isDeveloper() {
+      return safeGet(KEYS.developer) === 'true';
+    },
+
+    shouldAutoOpen(reader, options) {
       if (!reader) return false;
+
+      const settings = options || {};
+      const publicAutoOpen = settings.publicAutoOpen === true;
+      const developerMode = this.isDeveloper();
+
+      if (!developerMode && !publicAutoOpen) {
+        return false;
+      }
+
       const lastAutoOpen = reader.lastAutoOpen || '';
       return lastAutoOpen !== todayKey(Date.now());
     },

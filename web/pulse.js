@@ -9,15 +9,20 @@
 (function (window, document) {
   'use strict';
 
-const PULSE_ASSET_PATH = 'https://djripster.github.io/pulse/web/';
+  const PULSE_ASSET_PATH = 'https://djripster.github.io/pulse/web/';
 
-const Pulse = {
-  version: '0.2',
-  reader: null,
-  article: null,
-  conversation: null,
-  isExpanded: true,
-  iconPath: `${PULSE_ASSET_PATH}pulse.svg`,
+  const PulseConfig = {
+    publicAutoOpen: false
+  };
+
+  const Pulse = {
+    version: '0.2',
+    reader: null,
+    article: null,
+    conversation: null,
+    isExpanded: true,
+    iconPath: PULSE_ASSET_PATH + 'pulse.svg',
+    isDeveloper: false,
 
     init() {
       console.log('Pulse v' + this.version + ' loaded');
@@ -25,14 +30,20 @@ const Pulse = {
       const state = window.DjsPulseState;
       const intelligence = window.DjsIntelligence;
 
-      this.reader = state ? state.load() : { isExpanded: true, followingSince: 'Today', isFirstVisit: true };
+      this.isDeveloper = state ? state.isDeveloper() : false;
+      this.reader = state ? state.load() : { isExpanded: false, followingSince: 'Today', isFirstVisit: true };
       this.article = intelligence ? intelligence.analyzeArticle() : null;
       this.conversation = intelligence
         ? intelligence.getPulseConversation(this.reader, this.article)
         : this.getFallbackConversation();
 
-      const shouldAutoOpen = state ? state.shouldAutoOpen(this.reader) : true;
-      this.isExpanded = shouldAutoOpen ? true : this.reader.isExpanded;
+      const shouldAutoOpen = state
+        ? state.shouldAutoOpen(this.reader, { publicAutoOpen: PulseConfig.publicAutoOpen })
+        : false;
+
+      this.isExpanded = shouldAutoOpen
+        ? true
+        : (this.isDeveloper || PulseConfig.publicAutoOpen ? this.reader.isExpanded : false);
 
       if (shouldAutoOpen && state) {
         state.markAutoOpened();
@@ -138,6 +149,7 @@ const Pulse = {
     }
   };
 
+  window.PulseConfig = PulseConfig;
   window.Pulse = Pulse;
 
   document.addEventListener('DOMContentLoaded', () => {
