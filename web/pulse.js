@@ -1,7 +1,7 @@
 /*
  * Pulse
  * Module: pulse.js
- * Prototype: v0.2
+ * Prototype: v0.2.3
  *
  * DJs Mobiles Website Integration
  */
@@ -18,7 +18,7 @@
   };
 
   const Pulse = {
-    version: '0.2.2',
+    version: '0.2.3',
     reader: null,
     article: null,
     conversation: null,
@@ -26,23 +26,39 @@
     iconPath: PULSE_ASSET_PATH + 'pulse.svg',
     isDeveloper: false,
 
+    isMobile() {
+      return window.matchMedia('(max-width: 768px)').matches;
+    },
+
     canExpand() {
       return this.isDeveloper || PulseConfig.publicCanExpand === true;
     },
 
-    hideForPublicVisitors() {
-      const container = this.showContainer();
-      if (!container) return;
-
-      container.innerHTML = '';
-      container.setAttribute('hidden', 'hidden');
-      container.setAttribute('aria-hidden', 'true');
+    getCardContainer() {
+      return this.isMobile()
+        ? document.getElementById('pulse-mobile-card')
+        : document.getElementById('pulse-container');
     },
 
-    showContainer() {
-      const container = document.getElementById('pulse-container');
-      if (!container) return null;
+    getButtonContainer() {
+      return document.getElementById('pulse-mobile-button');
+    },
 
+    hideForPublicVisitors() {
+      const desktop = document.getElementById('pulse-container');
+      const mobileButton = document.getElementById('pulse-mobile-button');
+      const mobileCard = document.getElementById('pulse-mobile-card');
+
+      [desktop, mobileButton, mobileCard].forEach((container) => {
+        if (!container) return;
+        container.innerHTML = '';
+        container.setAttribute('hidden', 'hidden');
+        container.setAttribute('aria-hidden', 'true');
+      });
+    },
+
+    showContainer(container) {
+      if (!container) return null;
       container.removeAttribute('hidden');
       container.removeAttribute('aria-hidden');
       return container;
@@ -152,14 +168,53 @@
       `;
     },
 
-    render() {
-      const container = this.showContainer();
-      if (!container) return;
+    mobileButtonMarkup() {
+      return `
+        <button type="button" class="pulse-mobile-trigger" aria-label="Open Your Pulse" aria-expanded="${this.isExpanded ? 'true' : 'false'}">
+          ${this.iconMarkup()}
+        </button>
+      `;
+    },
 
-      container.innerHTML = '';
+    renderMobileButton() {
+      const buttonContainer = this.showContainer(this.getButtonContainer());
+      if (!buttonContainer) return;
+
+      buttonContainer.innerHTML = this.mobileButtonMarkup();
+
+      const button = buttonContainer.querySelector('.pulse-mobile-trigger');
+      if (!button) return;
+
+      button.addEventListener('click', () => {
+        if (!this.canExpand()) return;
+
+        this.isExpanded = !this.isExpanded;
+
+        if (window.DjsPulseState) {
+          window.DjsPulseState.setExpanded(this.isExpanded);
+        }
+
+        this.render();
+      });
+    },
+
+    render() {
+      const cardContainer = this.showContainer(this.getCardContainer());
+      if (!cardContainer) return;
+
+      if (this.isMobile()) {
+        this.renderMobileButton();
+      }
+
+      cardContainer.innerHTML = '';
+
+      if (this.isMobile() && !this.isExpanded) {
+        return;
+      }
 
       const card = document.createElement('section');
       const mode = this.conversation && this.conversation.mode ? this.conversation.mode : 'default';
+
       card.className = this.isExpanded
         ? 'pulse-card pulse-card--expanded pulse-card--' + mode
         : 'pulse-card pulse-card--collapsed' + (this.canExpand() ? '' : ' pulse-card--locked');
@@ -167,12 +222,10 @@
       card.innerHTML = this.isExpanded ? this.expandedMarkup() : this.collapsedMarkup();
 
       const header = card.querySelector('.pulse-card__header');
+
       if (header) {
         header.addEventListener('click', () => {
-          if (!this.canExpand()) {
-            console.log('Pulse is visible, but the full website experience is developer-only for now.');
-            return;
-          }
+          if (!this.canExpand()) return;
 
           this.isExpanded = !this.isExpanded;
 
@@ -184,7 +237,7 @@
         });
       }
 
-      container.appendChild(card);
+      cardContainer.appendChild(card);
     }
   };
 
