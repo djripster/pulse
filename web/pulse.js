@@ -15,7 +15,7 @@
     article: null,
     conversation: null,
     isExpanded: true,
-    iconPath: 'pulse.svg',
+    iconPath: 'https://djripster.github.io/pulse/web/pulse.svg',
 
     init() {
       console.log('Pulse v' + this.version + ' loaded');
