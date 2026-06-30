@@ -8,14 +8,16 @@
 </head>
 <body>
 <div id="pulse-container"></div>
+
+<script src="pulse-state.js"></script>
 <script src="intelligence.js"></script>
 <script>
-const demoArticle = {
+window.DjsPulseDemoArticle = {
   title: "Google Pixel 11 Review",
   labels: ["Google", "Android", "Review"]
 };
 
-console.log(DjsIntelligence.analyzeArticle(demoArticle));
+console.log(DjsIntelligence.analyzeArticle(window.DjsPulseDemoArticle));
 </script>
 <script src="pulse.js"></script>
 </body>
