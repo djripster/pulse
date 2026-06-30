@@ -1,179 +1,14 @@
-.pulse-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
-  border: 1px solid rgba(215, 227, 239, 0.9);
-  border-radius: 22px;
-  box-shadow: 0 10px 30px rgba(15, 35, 58, 0.06);
-  padding: 22px;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #17202b;
-}
-
-.pulse-card--collapsed {
-  padding: 16px 18px;
-}
-
-.pulse-card__header {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  padding: 0;
-  color: #0f4c81;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.pulse-card__header:focus-visible {
-  outline: 3px solid rgba(15, 76, 129, 0.28);
-  outline-offset: 4px;
-  border-radius: 999px;
-}
-
-.pulse-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.pulse-icon {
-  width: 22px;
-  height: 22px;
-  display: inline-block;
-  flex: 0 0 auto;
-}
-
-.pulse-card__chevron {
-  font-size: 14px;
-  line-height: 1;
-  flex: 0 0 auto;
-}
-
-.pulse-card__body {
-  margin-top: 16px;
-}
-
-.pulse-card__eyebrow {
-  color: #0f4c81;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.pulse-card h2 {
-  margin: 0 0 10px;
-  color: #17202b;
-  font-size: clamp(20px, 2vw, 24px);
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-}
-
-.pulse-card p {
-  margin: 0 0 18px;
-  color: #5c6b7c;
-  line-height: 1.6;
-}
-
-.pulse-card__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.pulse-card__stat {
-  background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
-  border: 1px solid #d4e5f7;
-  border-radius: 16px;
-  padding: 12px 13px;
-}
-
-.pulse-card__stat span {
-  display: block;
-  color: #5c6b7c;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-
-.pulse-card__stat strong {
-  display: block;
-  color: #0f4c81;
-  font-size: 15px;
-  line-height: 1.2;
-}
-
-.pulse-card__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0f4c81, #16639d);
-  color: #ffffff;
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 20px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-@media (max-width: 600px) {
-  .pulse-card {
-    border-radius: 18px;
-    padding: 18px 16px;
-  }
-
-  .pulse-card--collapsed {
-    padding: 15px 16px;
-  }
-
-  .pulse-card__stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-.pulse-card--locked .pulse-card__header {
-  cursor: default;
-}
-
-.pulse-card__status {
-  flex: 0 0 auto;
-  color: #6f7d8c;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* ============================================================
-   Pulse Responsive Mounts
-   ============================================================ */
-
 @media (max-width: 768px) {
-
-  /* Hide desktop Pulse */
   #pulse-container {
     display: none !important;
   }
 
-  /* Mobile button beside search */
   #pulse-mobile-button {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Card above featured story */
   #pulse-mobile-card {
     display: block;
     margin-bottom: 16px;
@@ -182,11 +17,27 @@
   #pulse-mobile-card:empty {
     display: none;
   }
+
+  .pulse-mobile-trigger {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid var(--border, #d7e3ef);
+    background: #fff;
+    box-shadow: 0 6px 14px rgba(15,35,58,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .pulse-mobile-trigger .pulse-icon {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 @media (min-width: 769px) {
-
-  /* Hide mobile Pulse on desktop */
   #pulse-mobile-button,
   #pulse-mobile-card {
     display: none !important;
