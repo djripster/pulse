@@ -71,3 +71,59 @@
     height: 22px;
   }
 }
+
+/* Pulse mobile mount safety fix */
+#pulse-mobile-button,
+#pulse-mobile-card {
+  display: none;
+}
+
+.pulse-mobile-trigger {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid var(--border, #d7e3ef);
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(15,35,58,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pulse-mobile-trigger .pulse-icon {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+}
+
+@media (max-width: 768px) {
+  #pulse-container {
+    display: none !important;
+  }
+
+  #pulse-mobile-button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  #pulse-mobile-card {
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  #pulse-mobile-card:empty {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  #pulse-mobile-button,
+  #pulse-mobile-card {
+    display: none !important;
+  }
+}
