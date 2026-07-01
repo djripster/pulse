@@ -1,7 +1,7 @@
 /*
  * Pulse
  * Module: pulse.js
- * Prototype: v0.2.4
+ * Prototype: v0.2.5
  *
  * DJs Mobiles Website Integration
  */
@@ -18,7 +18,7 @@
   };
 
   const Pulse = {
-    version: '0.2.4',
+    version: '0.2.5',
     reader: null,
     article: null,
     conversation: null,
@@ -28,6 +28,12 @@
 
     isMobile() {
       return window.matchMedia('(max-width: 768px)').matches;
+    },
+
+    isArticlePage() {
+      return document.body &&
+        document.body.classList.contains('item-view') &&
+        !!document.querySelector('.post-body');
     },
 
     canExpand() {
@@ -105,6 +111,12 @@
       };
 
       this.article = intelligence ? intelligence.analyzeArticle() : null;
+
+      if (state && this.article && this.isArticlePage()) {
+        state.recordArticle(this.article);
+        this.reader.articleHistory = state.getArticleHistory();
+      }
+
       this.conversation = intelligence
         ? intelligence.getPulseConversation(this.reader, this.article)
         : this.getFallbackConversation();

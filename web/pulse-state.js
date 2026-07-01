@@ -1,7 +1,7 @@
 /*
  * Pulse State
  * Module: pulse-state.js
- * Prototype: v0.2
+ * Prototype: v0.3
  *
  * DJs Mobiles Website Pulse reader memory.
  * Website-only storage. No extension dependency.
@@ -18,6 +18,9 @@
     lastVisit: STORAGE_PREFIX + 'last_visit',
     lastAutoOpen: STORAGE_PREFIX + 'last_auto_open',
     expanded: STORAGE_PREFIX + 'expanded',
+    visitCount: STORAGE_PREFIX + 'visit_count',
+    articleHistory: STORAGE_PREFIX + 'article_history',
+    sessionVisit: STORAGE_PREFIX + 'session_visit',
     developer: 'djs_pulse_dev'
   };
 
@@ -47,6 +50,53 @@
     }
   }
 
+
+  function safeSessionGet(key) {
+    try {
+      return window.sessionStorage.getItem(key);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function safeSessionSet(key, value) {
+    try {
+      window.sessionStorage.setItem(key, value);
+    } catch (error) {
+      /* sessionStorage may be unavailable. Pulse should still render. */
+    }
+  }
+
+
+  function safeJsonParse(value, fallback) {
+    if (!value) return fallback;
+
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function safeNumber(value, fallback) {
+    const number = parseInt(value, 10);
+    return Number.isNaN(number) ? fallback : number;
+  }
+
+  function cleanText(value, fallback) {
+    return String(value || fallback || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function canonicalUrl() {
+    const canonical = window.document && window.document.querySelector
+      ? window.document.querySelector('link[rel="canonical"]')
+      : null;
+
+    return canonical && canonical.href ? canonical.href : window.location.href.split('#')[0];
+  }
+
   function formatMonthYear(isoValue) {
     const date = new Date(isoValue);
     if (Number.isNaN(date.getTime())) return '';
@@ -58,7 +108,7 @@
   }
 
   const PulseState = {
-    version: '0.2',
+    version: '0.3',
     keys: KEYS,
 
     load() {
@@ -66,6 +116,9 @@
       let firstSeen = safeGet(KEYS.firstSeen);
       const previousLastSeen = safeGet(KEYS.lastSeen);
       const expandedValue = safeGet(KEYS.expanded);
+      const previousVisitCount = safeNumber(safeGet(KEYS.visitCount), 0);
+      const sessionAlreadyCounted = safeSessionGet(KEYS.sessionVisit) === todayKey(current);
+      const visitCount = sessionAlreadyCounted ? previousVisitCount : previousVisitCount + 1;
 
       if (!firstSeen) {
         firstSeen = current;
@@ -74,6 +127,8 @@
 
       safeSet(KEYS.lastVisit, previousLastSeen || current);
       safeSet(KEYS.lastSeen, current);
+      safeSet(KEYS.visitCount, String(visitCount));
+      safeSessionSet(KEYS.sessionVisit, todayKey(current));
 
       return {
         firstSeen,
@@ -83,13 +138,52 @@
         lastAutoOpen: safeGet(KEYS.lastAutoOpen),
         isExpanded: expandedValue === null ? true : expandedValue === 'true',
         isFirstVisit: !previousLastSeen,
-        followingSince: formatMonthYear(firstSeen)
+        followingSince: formatMonthYear(firstSeen),
+        visitCount,
+        articleHistory: this.getArticleHistory()
       };
     },
 
     setExpanded(value) {
       safeSet(KEYS.expanded, value ? 'true' : 'false');
     },
+
+    getArticleHistory() {
+      const history = safeJsonParse(safeGet(KEYS.articleHistory), []);
+      return Array.isArray(history) ? history : [];
+    },
+
+    recordArticle(article) {
+      if (!article) return null;
+
+      const title = cleanText(article.title, window.document ? window.document.title : 'Untitled article');
+      const url = canonicalUrl();
+      const timestamp = nowIso();
+
+      if (!title || !url) return null;
+
+      const entry = {
+        title,
+        url,
+        timestamp,
+        brand: cleanText(article.brand),
+        platform: cleanText(article.platform),
+        type: cleanText(article.type, 'Article'),
+        topics: Array.isArray(article.topics) ? article.topics.slice(0, 6) : []
+      };
+
+      const history = this.getArticleHistory();
+      const deduped = history.filter(function (item) {
+        return item && item.url !== url;
+      });
+
+      deduped.unshift(entry);
+      const limited = deduped.slice(0, 30);
+      safeSet(KEYS.articleHistory, JSON.stringify(limited));
+
+      return entry;
+    },
+
 
     markAutoOpened(date) {
       safeSet(KEYS.lastAutoOpen, todayKey(date || Date.now()));
@@ -126,6 +220,10 @@
       Object.keys(KEYS).forEach(function (name) {
         try {
           window.localStorage.removeItem(KEYS[name]);
+        } catch (error) {}
+
+        try {
+          window.sessionStorage.removeItem(KEYS[name]);
         } catch (error) {}
       });
     }
