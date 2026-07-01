@@ -1,7 +1,7 @@
 /*
  * DJs Mobiles Intelligence
  * Module: intelligence.js
- * Prototype: v0.2.3
+ * Prototype: v0.2.4
  *
  * Shared website intelligence layer.
  * Theme first. Pulse second.
@@ -13,7 +13,7 @@
   const SITE_TITLE_PREFIX = /^DJs Mobiles\s*\|\s*Expert Tech Insights & Mobile News Since 2010:\s*/i;
 
   const Intelligence = {
-    version: '0.2.3',
+    version: '0.2.4',
 
     isHomePage() {
       const path = window.location.pathname.replace(/\/+$/, '');
@@ -38,6 +38,10 @@
       return (' ' + text + ' ').indexOf(' ' + term + ' ') !== -1;
     },
 
+    hasAny(text, terms) {
+      return (terms || []).some(term => this.has(text, term));
+    },
+
     cleanTitle(value) {
       const title = String(value || document.title || '')
         .replace(SITE_TITLE_PREFIX, '')
@@ -59,17 +63,27 @@
       const titleText = this.normalize(title || '');
       const labelText = this.normalize((labels || []).join(' '));
 
-      const brands = [
+      const topicOnlySignals = [
+        'pokemon',
+        'pokémon',
+        'brave browser',
+        'brave',
+        'firefox',
+        'chrome browser',
+        'browser review'
+      ];
+
+      const productContextBrands = [
         ['Samsung', ['samsung', 'galaxy']],
-        ['Apple', ['apple', 'iphone', 'ipad', 'mac']],
-        ['Google', ['google', 'pixel']],
-        ['Microsoft', ['microsoft', 'surface']],
+        ['Apple', ['apple', 'homepod', 'iphone', 'ipad', 'macbook', 'imac', 'airpods', 'apple watch']],
+        ['Google', ['google', 'pixel', 'nest', 'chromecast']],
+        ['Microsoft', ['microsoft', 'surface', 'xbox']],
         ['Motorola', ['motorola', 'moto', 'razr']],
         ['Nothing', ['nothing', 'cmf']],
         ['OnePlus', ['oneplus']],
         ['Nokia', ['nokia']],
         ['BlackBerry', ['blackberry']],
-        ['Sony', ['sony', 'xperia']],
+        ['Sony', ['sony', 'xperia', 'wh 1000xm', 'wh1000xm', 'playstation']],
         ['HTC', ['htc']],
         ['LG', ['lg']],
         ['Verizon', ['verizon']],
@@ -78,14 +92,29 @@
         ['Qualcomm', ['qualcomm', 'snapdragon']]
       ];
 
-      for (const [brand, terms] of brands) {
-        if (terms.some(term => this.has(titleText, term))) {
+      for (const [brand, terms] of productContextBrands) {
+        const directBrandName = this.normalize(brand);
+
+        if (this.has(titleText, directBrandName)) {
+          return brand;
+        }
+
+        const productTerms = terms.filter(function (term) {
+          return ['homepod', 'iphone', 'ipad', 'macbook', 'imac', 'airpods', 'apple watch', 'galaxy', 'pixel', 'nest', 'chromecast', 'surface', 'xbox', 'moto', 'razr', 'xperia', 'wh 1000xm', 'wh1000xm', 'playstation', 'snapdragon'].indexOf(term) !== -1;
+        });
+
+        if (productTerms.some(term => this.has(titleText, term))) {
+          if (brand === 'Apple' && this.hasAny(titleText, topicOnlySignals) && !this.has(titleText, 'apple')) {
+            continue;
+          }
+
           return brand;
         }
       }
 
-      for (const [brand, terms] of brands) {
+      for (const [brand, terms] of productContextBrands) {
         const brandName = this.normalize(brand);
+
         if (this.has(labelText, brandName)) {
           return brand;
         }
@@ -105,27 +134,18 @@
     detectPlatform(title, labels) {
       const titleText = this.normalize(title || '');
       const labelText = this.normalize((labels || []).join(' '));
+      const text = titleText + ' ' + labelText;
 
-      const platforms = [
-        ['Windows Phone', ['windows phone']],
-        ['Chrome OS', ['chrome os']],
-        ['Android', ['android']],
-        ['iOS', ['ios']],
-        ['Windows', ['windows']],
-        ['Mac', ['mac', 'macos']]
-      ];
+      const hasAndroid = this.has(text, 'android');
+      const hasIos = this.has(text, 'ios') || this.has(text, 'iphone') || this.has(text, 'ipad');
 
-      for (const [platform, terms] of platforms) {
-        if (terms.some(term => this.has(titleText, term))) {
-          return platform;
-        }
-      }
-
-      for (const [platform, terms] of platforms) {
-        if (terms.some(term => this.has(labelText, term))) {
-          return platform;
-        }
-      }
+      if (hasAndroid && hasIos) return 'Mobile';
+      if (this.has(text, 'windows phone')) return 'Windows Phone';
+      if (this.has(text, 'chrome os')) return 'Chrome OS';
+      if (hasAndroid) return 'Android';
+      if (hasIos) return 'iOS';
+      if (this.has(titleText, 'windows')) return 'Windows';
+      if (this.has(titleText, 'mac') || this.has(titleText, 'macos')) return 'Mac';
 
       return '';
     },

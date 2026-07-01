@@ -1,7 +1,7 @@
 /*
  * Pulse State
  * Module: pulse-state.js
- * Prototype: v0.3.1
+ * Prototype: v0.3.2
  *
  * DJs Mobiles Website Pulse reader memory.
  * Website-only storage. No extension dependency.
@@ -90,6 +90,63 @@
       .trim();
   }
 
+  function normalize(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9+]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function has(text, term) {
+    return (' ' + text + ' ').indexOf(' ' + term + ' ') !== -1;
+  }
+
+  function addTopic(topics, topic) {
+    if (!topic) return topics;
+    const list = Array.isArray(topics) ? topics.slice(0, 6) : [];
+    if (list.indexOf(topic) === -1) list.push(topic);
+    return list.slice(0, 6);
+  }
+
+  function cleanHistoryEntry(item) {
+    if (!item || !item.url) return null;
+
+    const title = cleanText(item.title, 'Untitled article');
+    const text = normalize(title);
+    let brand = cleanText(item.brand);
+    let platform = cleanText(item.platform);
+    let topics = Array.isArray(item.topics) ? item.topics.slice(0, 6) : [];
+
+    if (has(text, 'pokemon') || has(text, 'pokémon')) {
+      if (brand === 'Apple') brand = '';
+      topics = addTopic(topics, 'Gaming');
+    }
+
+    if (has(text, 'brave') || has(text, 'browser') || has(text, 'firefox')) {
+      if (brand === 'Microsoft' && !has(text, 'microsoft') && !has(text, 'surface')) brand = '';
+      topics = addTopic(topics, 'Browsers');
+    }
+
+    if (brand === 'Apple' && (has(text, 'iphone and android') || has(text, 'ios and android'))) {
+      brand = '';
+    }
+
+    if ((has(text, 'iphone') || has(text, 'ios') || has(text, 'ipad')) && has(text, 'android')) {
+      platform = 'Mobile';
+    }
+
+    return {
+      title,
+      url: item.url,
+      timestamp: item.timestamp || nowIso(),
+      brand,
+      platform,
+      type: cleanText(item.type, 'Article'),
+      topics
+    };
+  }
+
   function canonicalUrl() {
     const canonical = window.document && window.document.querySelector
       ? window.document.querySelector('link[rel="canonical"]')
@@ -109,7 +166,7 @@
   }
 
   const PulseState = {
-    version: '0.3.1',
+    version: '0.3.2',
     keys: KEYS,
 
     load() {
@@ -151,7 +208,21 @@
 
     getArticleHistory() {
       const history = safeJsonParse(safeGet(KEYS.articleHistory), []);
-      return Array.isArray(history) ? history : [];
+      if (!Array.isArray(history)) return [];
+
+      const seenUrls = {};
+      const cleaned = [];
+
+      history.forEach(function (item) {
+        const entry = cleanHistoryEntry(item);
+        if (!entry || seenUrls[entry.url]) return;
+        seenUrls[entry.url] = true;
+        cleaned.push(entry);
+      });
+
+      const limited = cleaned.slice(0, 100);
+      safeSet(KEYS.articleHistory, JSON.stringify(limited));
+      return limited;
     },
 
     recordArticle(article) {
@@ -163,15 +234,17 @@
 
       if (!title || !url) return null;
 
-      const entry = {
+      const entry = cleanHistoryEntry({
         title,
         url,
         timestamp,
-        brand: cleanText(article.brand),
-        platform: cleanText(article.platform),
-        type: cleanText(article.type, 'Article'),
-        topics: Array.isArray(article.topics) ? article.topics.slice(0, 6) : []
-      };
+        brand: article.brand,
+        platform: article.platform,
+        type: article.type,
+        topics: article.topics
+      });
+
+      if (!entry) return null;
 
       const history = this.getArticleHistory();
       const deduped = history.filter(function (item) {
