@@ -1,7 +1,7 @@
 /*
  * DJs Mobiles Intelligence
  * Module: intelligence.js
- * Prototype: v0.2
+ * Prototype: v0.2.1
  *
  * Shared website intelligence layer.
  * Theme first. Pulse second.
@@ -11,7 +11,12 @@
   'use strict';
 
   const Intelligence = {
-    version: '0.2',
+    version: '0.2.1',
+
+    isHomePage() {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      return path === '' || path === '/';
+    },
 
     normalize(value) {
       return String(value || '')
@@ -118,6 +123,18 @@
     },
 
     analyzeArticle(article) {
+      if (this.isHomePage()) {
+        return {
+          title: 'DJs Mobiles',
+          labels: [],
+          brand: '',
+          platform: '',
+          type: 'Home',
+          topics: [],
+          isHome: true
+        };
+      }
+
       const source = article || this.collectArticleFromPage();
       const title = source?.title || document.title || '';
       const labels = source?.labels || [];
@@ -128,7 +145,8 @@
         brand: this.detectBrand(title, labels),
         platform: this.detectPlatform(title, labels),
         type: this.detectPostType(title, labels),
-        topics: this.detectTopics(title, labels)
+        topics: this.detectTopics(title, labels),
+        isHome: false
       };
     },
 
@@ -150,6 +168,18 @@
         };
       }
 
+      if (context && context.isHome) {
+        return {
+          eyebrow: 'Your Pulse',
+          title: 'Welcome back.',
+          message: 'Explore DJs Mobiles your way.',
+          mode: 'welcome',
+          stats: [
+            { label: 'Following since', value: reader?.followingSince || 'Recently' }
+          ]
+        };
+      }
+
       if (daysAway >= 2) {
         return {
           eyebrow: 'Welcome back',
@@ -165,6 +195,7 @@
 
       if (context && (context.brand || context.type || context.topics.length)) {
         const focus = context.brand || context.topics[0] || context.type;
+
         return {
           eyebrow: 'Today in your Pulse',
           title: focus ? 'You are reading ' + focus + ' coverage.' : 'Welcome back.',
@@ -172,7 +203,7 @@
           mode: 'daily',
           stats: [
             { label: 'Following since', value: reader?.followingSince || 'Recently' },
-            { label: 'Context', value: context.type || 'Article' }
+            { label: 'Reading', value: context.type || 'Article' }
           ]
         };
       }
