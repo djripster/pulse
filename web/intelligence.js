@@ -1,7 +1,7 @@
 /*
  * DJs Mobiles Intelligence
  * Module: intelligence.js
- * Prototype: v0.2.1
+ * Prototype: v0.2.2
  *
  * Shared website intelligence layer.
  * Theme first. Pulse second.
@@ -11,7 +11,7 @@
   'use strict';
 
   const Intelligence = {
-    version: '0.2.1',
+    version: '0.2.2',
 
     isHomePage() {
       const path = window.location.pathname.replace(/\/+$/, '');
@@ -150,8 +150,45 @@
       };
     },
 
+    formatLastVisit(reader) {
+      if (!reader || !reader.previousLastSeen) return 'Today';
+
+      const daysAway = window.DjsPulseState
+        ? window.DjsPulseState.getDaysSinceLastVisit(reader)
+        : 0;
+
+      if (daysAway <= 0) return 'Today';
+      if (daysAway === 1) return 'Yesterday';
+
+      return daysAway + ' days ago';
+    },
+
+    buildReaderStats(reader) {
+      const stats = [
+        {
+          label: 'Following since',
+          value: reader?.followingSince || 'Recently'
+        }
+      ];
+
+      stats.push({
+        label: 'Last visit',
+        value: this.formatLastVisit(reader)
+      });
+
+      if (reader && typeof reader.visitCount !== 'undefined') {
+        const count = Number(reader.visitCount) || 0;
+
+        stats.push({
+          label: 'Visits',
+          value: count === 1 ? '1 visit' : count + ' visits'
+        });
+      }
+
+      return stats;
+    },
+
     getPulseConversation(reader, article) {
-      const context = article || this.analyzeArticle();
       const daysAway = window.DjsPulseState && reader
         ? window.DjsPulseState.getDaysSinceLastVisit(reader)
         : 0;
@@ -162,60 +199,26 @@
           title: 'Pulse is just getting started.',
           message: 'More will appear here as Pulse accompanies you on your journey.',
           mode: 'welcome',
-          stats: [
-            { label: 'Following since', value: reader.followingSince || 'Today' }
-          ]
-        };
-      }
-
-      if (context && context.isHome) {
-        return {
-          eyebrow: 'Your Pulse',
-          title: 'Welcome back.',
-          message: 'Explore DJs Mobiles your way.',
-          mode: 'welcome',
-          stats: [
-            { label: 'Following since', value: reader?.followingSince || 'Recently' }
-          ]
+          stats: this.buildReaderStats(reader)
         };
       }
 
       if (daysAway >= 2) {
         return {
-          eyebrow: 'Welcome back',
-          title: 'It has been a little while.',
-          message: 'Pulse will start surfacing what changed while you were away as your reading history grows.',
+          eyebrow: 'Your Pulse',
+          title: 'Welcome back.',
+          message: 'It has been a little while. Pulse will start surfacing what changed while you were away as your reading history grows.',
           mode: 'returning',
-          stats: [
-            { label: 'Following since', value: reader?.followingSince || 'Recently' },
-            { label: 'Last visit', value: daysAway + ' days ago' }
-          ]
-        };
-      }
-
-      if (context && (context.brand || context.type || context.topics.length)) {
-        const focus = context.brand || context.topics[0] || context.type;
-
-        return {
-          eyebrow: 'Today in your Pulse',
-          title: focus ? 'You are reading ' + focus + ' coverage.' : 'Welcome back.',
-          message: 'Pulse will use article context to make this space more useful over time.',
-          mode: 'daily',
-          stats: [
-            { label: 'Following since', value: reader?.followingSince || 'Recently' },
-            { label: 'Reading', value: context.type || 'Article' }
-          ]
+          stats: this.buildReaderStats(reader)
         };
       }
 
       return {
         eyebrow: 'Your Pulse',
-        title: 'Welcome back.',
-        message: 'Pulse is here when there is something meaningful to say.',
-        mode: 'quiet',
-        stats: [
-          { label: 'Following since', value: reader?.followingSince || 'Recently' }
-        ]
+        title: 'Pulse is just getting started.',
+        message: 'More will appear here as Pulse accompanies you on your journey.',
+        mode: 'welcome',
+        stats: this.buildReaderStats(reader)
       };
     }
   };
