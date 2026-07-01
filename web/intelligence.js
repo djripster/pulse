@@ -1,7 +1,7 @@
 /*
  * DJs Mobiles Intelligence
  * Module: intelligence.js
- * Prototype: v0.2.2
+ * Prototype: v0.2.3
  *
  * Shared website intelligence layer.
  * Theme first. Pulse second.
@@ -10,12 +10,20 @@
 (function (window, document) {
   'use strict';
 
+  const SITE_TITLE_PREFIX = /^DJs Mobiles\s*\|\s*Expert Tech Insights & Mobile News Since 2010:\s*/i;
+
   const Intelligence = {
-    version: '0.2.2',
+    version: '0.2.3',
 
     isHomePage() {
       const path = window.location.pathname.replace(/\/+$/, '');
       return path === '' || path === '/';
+    },
+
+    isArticlePage() {
+      return document.body &&
+        document.body.classList.contains('item-view') &&
+        !!document.querySelector('.post-body');
     },
 
     normalize(value) {
@@ -30,14 +38,32 @@
       return (' ' + text + ' ').indexOf(' ' + term + ' ') !== -1;
     },
 
+    cleanTitle(value) {
+      const title = String(value || document.title || '')
+        .replace(SITE_TITLE_PREFIX, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (title.indexOf(': ') !== -1 && title.toLowerCase().indexOf('djs mobiles') === 0) {
+        return title.split(': ').slice(1).join(': ').trim();
+      }
+
+      return title;
+    },
+
+    getArticleRoot() {
+      return document.querySelector('.post-outer, article, .post, .blog-posts .post') || document;
+    },
+
     detectBrand(title, labels) {
-      const text = this.normalize((title || '') + ' ' + (labels || []).join(' '));
+      const titleText = this.normalize(title || '');
+      const labelText = this.normalize((labels || []).join(' '));
 
       const brands = [
         ['Samsung', ['samsung', 'galaxy']],
         ['Apple', ['apple', 'iphone', 'ipad', 'mac']],
         ['Google', ['google', 'pixel']],
-        ['Microsoft', ['microsoft', 'surface', 'windows']],
+        ['Microsoft', ['microsoft', 'surface']],
         ['Motorola', ['motorola', 'moto', 'razr']],
         ['Nothing', ['nothing', 'cmf']],
         ['OnePlus', ['oneplus']],
@@ -45,11 +71,30 @@
         ['BlackBerry', ['blackberry']],
         ['Sony', ['sony', 'xperia']],
         ['HTC', ['htc']],
-        ['LG', ['lg']]
+        ['LG', ['lg']],
+        ['Verizon', ['verizon']],
+        ['T-Mobile', ['t mobile', 'tmobile']],
+        ['AT&T', ['at t', 'att']],
+        ['Qualcomm', ['qualcomm', 'snapdragon']]
       ];
 
       for (const [brand, terms] of brands) {
-        if (terms.some(term => this.has(text, term))) {
+        if (terms.some(term => this.has(titleText, term))) {
+          return brand;
+        }
+      }
+
+      for (const [brand, terms] of brands) {
+        const brandName = this.normalize(brand);
+        if (this.has(labelText, brandName)) {
+          return brand;
+        }
+
+        const strongTerms = terms.filter(function (term) {
+          return ['galaxy', 'pixel', 'surface', 'moto', 'razr', 'xperia', 'snapdragon'].indexOf(term) !== -1;
+        });
+
+        if (strongTerms.some(term => this.has(labelText, term))) {
           return brand;
         }
       }
@@ -58,14 +103,29 @@
     },
 
     detectPlatform(title, labels) {
-      const text = this.normalize((title || '') + ' ' + (labels || []).join(' '));
+      const titleText = this.normalize(title || '');
+      const labelText = this.normalize((labels || []).join(' '));
 
-      if (this.has(text, 'android')) return 'Android';
-      if (this.has(text, 'ios')) return 'iOS';
-      if (this.has(text, 'windows phone')) return 'Windows Phone';
-      if (this.has(text, 'windows')) return 'Windows';
-      if (this.has(text, 'chrome os')) return 'Chrome OS';
-      if (this.has(text, 'mac')) return 'Mac';
+      const platforms = [
+        ['Windows Phone', ['windows phone']],
+        ['Chrome OS', ['chrome os']],
+        ['Android', ['android']],
+        ['iOS', ['ios']],
+        ['Windows', ['windows']],
+        ['Mac', ['mac', 'macos']]
+      ];
+
+      for (const [platform, terms] of platforms) {
+        if (terms.some(term => this.has(titleText, term))) {
+          return platform;
+        }
+      }
+
+      for (const [platform, terms] of platforms) {
+        if (terms.some(term => this.has(labelText, term))) {
+          return platform;
+        }
+      }
 
       return '';
     },
@@ -88,13 +148,16 @@
 
       const topicMap = [
         ['AI', ['ai', 'artificial intelligence', 'galaxy ai', 'gemini', 'apple intelligence']],
+        ['Browsers', ['browser', 'browsers', 'chrome', 'firefox', 'safari', 'edge', 'brave']],
+        ['Privacy', ['privacy', 'private browsing']],
+        ['Security', ['security', 'malware', 'password', 'passkey']],
         ['Camera', ['camera', 'photo', 'video', 'imaging']],
         ['Battery', ['battery', 'charging']],
         ['Foldables', ['foldable', 'foldables', 'z fold', 'z flip', 'razr']],
         ['Android Updates', ['android update', 'android beta', 'security patch', 'pixel update']],
-        ['Gaming', ['gaming', 'game', 'console']],
+        ['Gaming', ['gaming', 'game', 'pokemon', 'pokémon', 'console']],
         ['Wearables', ['wear os', 'watch', 'wearable']],
-        ['Carriers', ['carrier', 'mvno', '5g']]
+        ['Carriers', ['carrier', 'mvno', '5g', 'verizon', 't mobile', 'tmobile', 'at t', 'att']]
       ];
 
       for (const [topic, terms] of topicMap) {
@@ -107,8 +170,9 @@
     },
 
     collectArticleFromPage() {
-      const titleNode = document.querySelector('.post-title, h1, title');
-      const labelNodes = document.querySelectorAll('.post-label-chip, a[rel="tag"]');
+      const root = this.getArticleRoot();
+      const titleNode = root.querySelector('.post-title, h1') || document.querySelector('.post-title, h1, title');
+      const labelNodes = root.querySelectorAll('.post-label-chip, a[rel="tag"]');
       const labels = [];
 
       labelNodes.forEach(function (node) {
@@ -123,7 +187,7 @@
     },
 
     analyzeArticle(article) {
-      if (this.isHomePage()) {
+      if (this.isHomePage() || !this.isArticlePage()) {
         return {
           title: 'DJs Mobiles',
           labels: [],
@@ -136,7 +200,7 @@
       }
 
       const source = article || this.collectArticleFromPage();
-      const title = source?.title || document.title || '';
+      const title = this.cleanTitle(source?.title || document.title || '');
       const labels = source?.labels || [];
 
       return {
@@ -168,13 +232,12 @@
         {
           label: 'Following since',
           value: reader?.followingSince || 'Recently'
+        },
+        {
+          label: 'Last visit',
+          value: this.formatLastVisit(reader)
         }
       ];
-
-      stats.push({
-        label: 'Last visit',
-        value: this.formatLastVisit(reader)
-      });
 
       if (reader && typeof reader.visitCount !== 'undefined') {
         const count = Number(reader.visitCount) || 0;
@@ -188,7 +251,7 @@
       return stats;
     },
 
-    getPulseConversation(reader, article) {
+    getPulseConversation(reader) {
       const daysAway = window.DjsPulseState && reader
         ? window.DjsPulseState.getDaysSinceLastVisit(reader)
         : 0;

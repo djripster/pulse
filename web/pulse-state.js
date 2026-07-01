@@ -1,7 +1,7 @@
 /*
  * Pulse State
  * Module: pulse-state.js
- * Prototype: v0.3
+ * Prototype: v0.3.1
  *
  * DJs Mobiles Website Pulse reader memory.
  * Website-only storage. No extension dependency.
@@ -85,6 +85,7 @@
 
   function cleanText(value, fallback) {
     return String(value || fallback || '')
+      .replace(/^DJs Mobiles\s*\|\s*Expert Tech Insights & Mobile News Since 2010:\s*/i, '')
       .replace(/\s+/g, ' ')
       .trim();
   }
@@ -108,7 +109,7 @@
   }
 
   const PulseState = {
-    version: '0.3',
+    version: '0.3.1',
     keys: KEYS,
 
     load() {
@@ -178,7 +179,7 @@
       });
 
       deduped.unshift(entry);
-      const limited = deduped.slice(0, 30);
+      const limited = deduped.slice(0, 100);
       safeSet(KEYS.articleHistory, JSON.stringify(limited));
 
       return entry;
